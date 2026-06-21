@@ -178,4 +178,83 @@ export function base45Decode(str) {
   }
   return fromBytes(new Uint8Array(out))
 }
+export function base85Encode(input) {
+  const b = toBytes(input)
+  let out = ''
+  for (let i = 0; i < b.length; i += 4) {
+    let n = 0, count = 0
+    for (let j = 0; j < 4; j++) {
+      n = n * 256 + (i + j < b.length ? b[i + j] : 0)
+      if (i + j < b.length) count++
+    }
+    if (count === 4 && n === 0) { out += 'z'; continue }
+    const chars = []
+    for (let j = 0; j < 5; j++) { chars.unshift(String.fromCharCode((n % 85) + 33)); n = Math.floor(n / 85) }
+    out += chars.slice(0, count + 1).join('')
+  }
+  return out
+}
 
+export function base85Decode(str) {
+  const s = str.replace(/^<~/, '').replace(/~>$/, '').replace(/\s+/g, '')
+  const out = []
+  for (let i = 0; i < s.length;) {
+    if (s[i] === 'z') { out.push(0, 0, 0, 0); i++; continue }
+    let n = 0, count = 0
+    for (let j = 0; j < 5; j++) {
+      if (i < s.length) {
+        const c = s.charCodeAt(i) - 33
+        if (c < 0 || c > 84) throw new Error('invalid ascii85 character')
+        n = n * 85 + c; count++; i++
+      } else n = n * 85 + 84
+    }
+    const bytes = [
+      Math.floor(n / 16777216) % 256, Math.floor(n / 65536) % 256,
+      Math.floor(n / 256) % 256, n % 256,
+    ]
+    out.push(...bytes.slice(0, count - 1))
+  }
+  return fromBytes(new Uint8Array(out))
+}
+
+const B91 =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' +
+  '!#$%&()*+,./:;<=>?@[]^_`{|}~"'
+
+export function base91Encode(input) {
+  const b = toBytes(input)
+  let out = '', n = 0, bits = 0
+  for (const byte of b) {
+    n |= byte << bits
+    bits += 8
+    if (bits > 13) {
+      let v = n & 8191
+      if (v > 88) { n >>= 13; bits -= 13 } else { v = n & 16383; n >>= 14; bits -= 14 }
+      out += B91[v % 91] + B91[Math.floor(v / 91)]
+    }
+  }
+  if (bits) {
+    out += B91[n % 91]
+    if (bits > 7 || n > 90) out += B91[Math.floor(n / 91)]
+  }
+  return out
+}
+
+export function base91Decode(str) {
+  const map = Object.fromEntries([...B91].map((c, i) => [c, i]))
+  let n = 0, bits = 0, v = -1
+  const out = []
+  for (const ch of str) {
+    if (map[ch] === undefined) continue
+    if (v < 0) v = map[ch]
+    else {
+      v += map[ch] * 91
+      n |= v << bits
+      bits += (v & 8191) > 88 ? 13 : 14
+      while (bits > 7) { out.push(n & 255); n >>= 8; bits -= 8 }
+      v = -1
+    }
+  }
+  if (v >= 0) out.push((n | (v << bits)) & 255)
+  return fromBytes(new Uint8Array(out))
+}
