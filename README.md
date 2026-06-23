@@ -6,3 +6,6 @@ tools like wireshark or shit that requires packages will be added too
 
 i love fucking around
 fuck me
+
+
+tech stack is react + vite
