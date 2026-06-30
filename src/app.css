@@ -151,3 +151,84 @@ textarea {
   line-height: 1.5;
 }
 
+button.btn {
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  padding: 7px 13px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button.btn:hover {
+  border-color: var(--muted);
+}
+
+button.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.textio {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.textio__bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.textio__bar .spacer {
+  flex: 1;
+}
+
+.textio__bar small {
+  color: var(--muted);
+}
+
+.result {
+  border: 1px solid var(--line);
+  padding: 11px 13px;
+  margin-bottom: 9px;
+}
+
+.result__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.result__label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rsult__value {
+  font-family: var(--mono);
+  font-size: 13px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.result.bad .result__value {
+  color: var(--red);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.error {
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 13px;
+}
