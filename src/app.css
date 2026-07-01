@@ -207,7 +207,7 @@ button.btn:disabled {
   color: var(--muted);
 }
 
-.rsult__value {
+.result__value {
   font-family: var(--mono);
   font-size: 13px;
   word-break: break-all;
